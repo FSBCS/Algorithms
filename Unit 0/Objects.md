@@ -131,3 +131,69 @@ Notice how much simpler the `Aquarium` class is! We still need to tell the fish 
 Actually, what's happening is that, instead of maintaining lots of arrays for each property of a fish, we are now creating many `Fish` objects: each fish "knows" all of its own property values. What's more, since it knows its values, each `Fish` object can perform its own `swim()` and `draw()` actions _without_ needing to have all the data sent back in from the `Aquarium` class!
 
 ## Anatomy of a Class
+
+Remember our definition of a data type? _A set of values and a set of operations on those values_. In Java, a class always defines a new concrete data type. In the example above, the `Fish` class defines a new data type that represents a fish. Since each class is a new data type, that class must have both _values_ and _operations_.
+
+### Fields
+
+_Fields_ are the variables that contain information or properties about the object or class. They are declared at the top of the class (just below the class declaration) and are (usually) not initialized. In our example above, fields include `x`, `y`, `bodyColor`, and so on. These are all properties _each_ fish, which distinguishes objects from our previous array data structures which grouped the properties of _all_ fish (e.g. `fishXCoordinates[]`).
+
+
+### Constructors
+
+In Java a constructor looks fairly similar to a function, except that instead of a name and a return type, the Constructor simply uses the _class name_ followed by arguments:
+
+```java
+public Fish(int x, int y, int bc, int tc, int numberOfSpots, int sz, double w) {
+
+}
+```
+
+The role of the constructor is to set up a new _instance_ of the class and initialize its fields. The constructor is invoked using the `new` keyword:
+
+```java
+Fish x = new Fish(23, 0, 0xfc0303, 0x0, 3, 1, 3.14159265);
+```
+
+<br/>
+
+#### `this` Keyword
+
+In the fully implemented constructor above, you may have noticed the use of the keyword `this` in lines like `this.x = x;`. In Java (and many other languages) `this` is a _pointer_ to the object we are operating on. In constructors, it's the objec that we have just created using the `new` keyword and are currently initializing.
+
+Often, `this` is redundant. Fields have a scope corresponding to the entire class, so they can be accessed freely from (almost) anywhere. But, in our constructor above, you may notice there are naming conflicts: some fields have the same name as constructor arguments. That's not uncommon: we often want to pass field values into the constructor and there's only so many ways to name the same value. Java's scoping rules give priority to the variable with _narrower_ scope. So, in the constructor above, `x` refers to the _parameter_ `x` and not the field. We can still access the field though by using the keyword `this`, referencing `this.x`, which is the `x` field of `this` instance of `Fish`.
+
+#### Dot ("`.`") Operator
+
+You've now seen this mysterious `.` ("dot") floating around all over the place. Most recently in `this.x`, but also in places like `arr.length` or twice in `System.out.println()`. The dot operator is used to reference a field or method (see below) of a particular object. So `this.x` means the `x` field of `this` (`Fish` or whatever class it is).
+
+It's actually helpful to understand exactly what an object looks like in memory. More or less, the thing is just a header describing the object plus an array-like sequence of all the fields...and that's it.
+
+```markdown
+STACK                          HEAP
+┌─────────────┐
+│ myDog        │ ──────────►   ┌───────────────────────────┐  addr: 0x7F3A10
+│ (reference)  │               │  Object Header            │
+└─────────────┘                │  ┌──────────────────────┐ │
+                               │  │ type: Dog            │ │
+                               │  │ (points to Dog class │ │
+                               │  │  metadata / methods) │ │
+                               │  └──────────────────────┘ │
+                               │                           │
+                               │  Fields (instance data)   │
+                               │  ┌──────────────────────┐ │
+                               │  │ name  : "Rex"        │ │
+                               │  │ age   : 3            │ │
+                               │  │ owner : 0x7F3B88  ──┐│ │
+                               │  └─────────────────────│  │
+                               └────────────────────────┼──┘
+                                                        │
+                                                        ▼
+                               ┌───────────────────────────┐  addr: 0x7F3B88
+                               │  Object Header            │
+                               │  type: Person             │
+                               │  ┌──────────────────────┐ │
+                               │  │ name : "Joel"        │ │
+                               │  └──────────────────────┘ │
+                               └───────────────────────────┘
+```
