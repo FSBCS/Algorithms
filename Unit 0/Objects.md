@@ -132,7 +132,12 @@ Actually, what's happening is that, instead of maintaining lots of arrays for ea
 
 ## Anatomy of a Class
 
-Remember our definition of a data type? _A set of values and a set of operations on those values_. In Java, a class always defines a new concrete data type. In the example above, the `Fish` class defines a new data type that represents a fish. Since each class is a new data type, that class must have both _values_ and _operations_.
+Remember our definition of a data type? 
+
+>[!NOTE]
+> A **Data Type** is a set of values and a set of operations on those values. 
+
+In Java, a class always defines a new concrete data type. In the example above, the `Fish` class defines a new data type that represents a fish. Since each class is a new data type, that class must have both _values_ and _operations_.
 
 ### Fields
 
@@ -170,10 +175,10 @@ You've now seen this mysterious `.` ("dot") floating around all over the place. 
 It's actually helpful to understand exactly what an object looks like in memory. More or less, the thing is just a header describing the object plus an array-like sequence of all the fields...and that's it.
 
 ```markdown
-STACK                          HEAP
+POINTER VARIABLE                MEMORY (HEAP)
 ┌─────────────┐
-│ myDog        │ ──────────►   ┌───────────────────────────┐  addr: 0x7F3A10
-│ (reference)  │               │  Object Header            │
+│ spookyDog   │  ──────────►   ┌───────────────────────────┐  addr: 0x7F3A10
+│ (reference) │                │  Object Header            │
 └─────────────┘                │  ┌──────────────────────┐ │
                                │  │ type: Dog            │ │
                                │  │ (points to Dog class │ │
@@ -182,7 +187,7 @@ STACK                          HEAP
                                │                           │
                                │  Fields (instance data)   │
                                │  ┌──────────────────────┐ │
-                               │  │ name  : "Rex"        │ │
+                               │  │ name  : "Zero"       │ │
                                │  │ age   : 3            │ │
                                │  │ owner : 0x7F3B88  ──┐│ │
                                │  └─────────────────────│  │
@@ -193,7 +198,67 @@ STACK                          HEAP
                                │  Object Header            │
                                │  type: Person             │
                                │  ┌──────────────────────┐ │
-                               │  │ name : "Joel"        │ │
+                               │  │ name : "Skellington" │ │
                                │  └──────────────────────┘ │
                                └───────────────────────────┘
 ```
+
+Hopefully its easy to see why the dot operator is always preceded by a _pointer_. The pointer, uh, points to the start of an object and then every field is some known distance below it in memory. In the diagram above of an imaginary `Dog` class, _one_ of the fields is actually a pointer to another object (of the `Person` class)! That's totally fine: it just means that one of the fields (`owner`) is itself an object with its own fields. If we wanted to find out the name of the owner, we would use two dot operators: `spookyDog.owner.name` to reference the name of the owner of the dog object in the variable `spookyDog`. Something similar is going on with `System.out.println()`.
+
+### Methods
+
+A method is a function inside of a class. We already know about functions. The power of methods comes from the object data structure. Conceptually, you can think of objects as containing a "copy" of each method in the class. So, when we call `fishA.swim()` this causes whatever `Fish` object `fishA` points to to swim. `fishB.swim()` perhaps causes a totally different fish to swim: each `Fish` has a "copy" of the `swim()` function.
+
+Buuuuuut, that's not exactly true. The actual function isn't copied--you can actually see from the memory diagram above that there aren't any functions in there. Actually it's all pointer magic!
+
+When you have a function like:
+
+```java
+public void swim() {
+    this.x = // something;
+    this.y = // something;
+}
+```
+
+It is secretly translated to another function when you compile it:
+
+```java
+public void swim(this) {
+    this.x = // something;
+    this.y = // something;  
+}
+```
+
+And when you call `fishA.swim` it gets translated into `swim(fishA)`, passing in the correct pointer so that when the function references `this.x` it's accessing the fields of the right object. Neat!
+
+So, the dot operator works a little differently for fields and mehtods under the hood, but conceptually they are the same. The thing _after_ the operator is something that belongs to that specific instance.
+
+## Static methods and fields
+
+You have also probably seen a number of methods marked as `static`. Most commonly in `public static void main(String args[])`. It turns out, methods come in two flavors: instance and static. Instance methods are the kind we just described. They always require a specific _instance_ of a class to run and can access the fields of that instance. Conversely, _static_ methods belong only to the class itself and do not require an instance to run.
+
+Fields, too, can be static. Unlike instance fields, they are _not_ copied into individual instances of an object in memory and represent the state of the entire class.
+
+Static fields and methods are both accessed using the dot operator on the _class name_: `Math.pow()`, `Fish.getNextXCoordinat()`, etc.
+
+### Uses of Static Fields and Methods
+
+You are already familiar with _one_ use of static methods: libraries. You can see these in action in the original library version of the `Fish` class:
+
+```java
+public class Fish {
+    public static void drawFish(int x, int y, int bodyColor, int tailColor, int number of spots, int size) {
+        // Implementation not shown...
+    }
+
+    public static int getNextXCoordinate(int x, double fishWeight) {}
+
+    public static int getNextYCoordinate(int y, double fishWeight) {}
+}
+```
+
+The disadvantage of this particular class is obvious: a `this` pointer could have passd in all of the parameters rather than this mess, but plenty of classes in Java provide useful library functions: `Math`, `System`, and `Arrays` all provide essential functions that you are already using.
+
+#### Factory Methods
+
+Sometimes constructing an instance requires lots of instances of 
