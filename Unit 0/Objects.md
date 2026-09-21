@@ -34,6 +34,7 @@ public class Fish {
     public static int getNextYCoordinate(int y, double fishWeight) {}
 }
 ```
+
 ```java
 public class Aquarium {
     public static void main(String[] args) {
@@ -132,17 +133,16 @@ Actually, what's happening is that, instead of maintaining lots of arrays for ea
 
 ## Anatomy of a Class
 
-Remember our definition of a data type? 
+Remember our definition of a data type?
 
 >[!NOTE]
-> A **Data Type** is a set of values and a set of operations on those values. 
+> A **Data Type** is a set of values and a set of operations on those values.
 
 In Java, a class always defines a new concrete data type. In the example above, the `Fish` class defines a new data type that represents a fish. Since each class is a new data type, that class must have both _values_ and _operations_.
 
 ### Fields
 
 _Fields_ are the variables that contain information or properties about the object or class. They are declared at the top of the class (just below the class declaration) and are (usually) not initialized. In our example above, fields include `x`, `y`, `bodyColor`, and so on. These are all properties _each_ fish, which distinguishes objects from our previous array data structures which grouped the properties of _all_ fish (e.g. `fishXCoordinates[]`).
-
 
 ### Constructors
 
@@ -257,8 +257,81 @@ public class Fish {
 }
 ```
 
-The disadvantage of this particular class is obvious: a `this` pointer could have passd in all of the parameters rather than this mess, but plenty of classes in Java provide useful library functions: `Math`, `System`, and `Arrays` all provide essential functions that you are already using.
+The disadvantage of this particular class is obvious: a `this` pointer could have passed in all of the parameters rather than this mess. Nevertheless, plenty of classes in Java provide useful library functions: `Math`, `System`, and `Arrays` all provide essential functions that you are already using.
 
 #### Factory Methods
 
-Sometimes constructing an instance requires lots of instances of 
+Sometimes constructing an instance of a class requires some validation or has a special case that we want to account for. For example, consider this `Username` class:
+
+```java
+public class Username {
+    private String value;
+
+    private Username(String value) {
+        this.value = value;
+    }
+
+    public static Username create(String candidate) {
+        if (candidate == null || candidate.length() < 3 || candidate.length() > 15) {
+            throw new IllegalArgumentException("Username must be 3–15 characters");
+        }
+        if (!candidate.matches("[a-zA-Z0-9_]+")) {
+            throw new IllegalArgumentException("Username can only contain letters, digits, underscore");
+        }
+        return new Username(candidate.toLowerCase());
+    }
+
+    public String getValue() { return value; }
+}
+
+Username u = Username.create("Bob_W"); // works, stored as "bob_w"
+Username bad = Username.create("x!");   // throws IllegalArgumentException
+```
+
+Thic class requires usernames to pass certain checks (length and character types). If we had just invoked `new Username("x!");`, the constructor would not have validated it. (We actually _could_ put all that validation inside the constructor, but this strategy guarantees we _always_ go through the validation step).
+
+Similarly:
+
+```java
+public class Fraction {
+
+    private static final Fraction ZERO = new Fraction(0, 1);
+
+    private int numerator;
+    private int denominator;
+
+    private Fraction(int numerator, int denominator) {
+        this.numerator = numerator;
+        this.denominator = denominator;
+    }
+
+    public static Fraction of(int numerator, int denominator) {
+        if (denominator == 0) {
+            throw new IllegalArgumentException("Denominator cannot be zero");
+        }
+        if (numerator == 0) {
+            return ZERO; // reuse the same object instead of building a new one
+        }
+        return new Fraction(numerator, denominator);
+    }
+
+    public static Fraction zero() {
+        return ZERO;
+    }
+
+    public static Fraction whole(int n) {
+        return new Fraction(n, 1);
+    }
+
+    public String toString() {
+        return numerator + "/" + denominator;
+    }
+}
+
+// usage:
+Fraction half = Fraction.of(1, 2);
+Fraction z = Fraction.zero();     // 0/1, without the caller picking arbitrary numbers
+Fraction three = Fraction.whole(3); // 3/1
+```
+
+Here, we're not just validating--we're also handling some special cases of fractions: whole numbers and zero. Whether you prefer static or direct construction depends on the needs of the program--often both techniques are blended.
