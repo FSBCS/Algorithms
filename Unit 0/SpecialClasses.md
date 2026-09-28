@@ -153,4 +153,134 @@ We indicate that a class implements an interface using the keyword `implements`.
 
 ### Interfaces vs. Abstract Classes
 
-Interfaces are quite similar to abstract classes but much narrower in scope
+Interfaces are quite similar to abstract classes but much narrower in scope. They are _only_ a list of functions and _not_ a superclass. This means they don't tie a class into an inheritance structure. So a class can extend one class _and_ implement an interface--these accomplish two different, but overlapping goals. Also unlike abstract classes, a class can implement multiple interfaces. Take a new `Horse` class in our game:
+
+```java
+interface Healable {
+    void heal(int amount);
+}
+
+interface Sellable {
+    int getPrice();
+}
+
+class Horse implements Healable, Sellable {
+    private String name;
+    private int health;
+    private int maxHealth;
+    private int energy;
+    private int price;
+
+    public Horse(String name, int health, int energy, int price) {
+        this.name = name;
+        this.health = health;
+        this.maxHealth = health;
+        this.energy = energy;
+        this.price = price;
+    }
+
+    // Horse-specific behavior: consuming energy
+    public void gallop() {
+        if (energy >= 10) {
+            energy -= 10;
+            System.out.println(name + " gallops swiftly! Energy remaining: " + energy);
+        } else {
+            System.out.println(name + " is too exhausted to gallop!");
+        }
+    }
+
+    // From Healable interface
+    @Override
+    public void heal(int amount) {
+        this.health = Math.min(this.health + amount, maxHealth);
+        System.out.println(name + " (Horse) was healed for " + amount + " HP! Health: " + health + "/" + maxHealth);
+    }
+
+    // From Sellable interface
+    @Override
+    public int getPrice() {
+        return price;
+    }
+}
+```
+
+Notice the use of the `@Override` tag: even though we don't specify a method body in the interface, we do supply an abstract function that is implemented in the `Horse` class. That still counts as "overriding."
+
+When a class implements an interface, we can use that interface as a data type to store many different objects that implement a sellable interface:
+
+```java
+public void HealParty(Healable[] party, int amount) {
+    for (Healable h : party)
+        h.heal(amount);
+}
+```
+
+As with abstract classes, the data type is serving the purpose of a "contract" with the compiler that ensures type safety. There are no pure `Healable` objects out there, but the `Healable` data type indicates that any object of that type (i.e. that implements the `Healable` interface) will have all the functionality of that interface (in this case just `void heal(int)`). Of course, the actual _version_ of that function is unknown to the compiler: dynamic method lookup handles that at runtime.
+
+## Immutable Classes
+
+Our final "special" class is not another construct in the Java language but rather a coding "practice."
+
+> [!NOTE] Definition
+> An **Immutable Class** is a class whose instances cannot change their internal state after construction.
+
+Every object has an "internal state," which is a fancy way of saying "the current set of values of all the parameters." An immutable class is not permitted to change _any_ of these values once the constructor initializes them. To achieve immutability we have to introduce one `final` keyword...
+
+> [!NOTE] Definition
+> The modifier `final` indicates that the variable, method, or class modified cannot be updated (once initialized), overridden, or extended.
+
+We can make a class _immutable_ by:
+
+1. Declaring the class as `final`
+2. Mark all fields as both `private` _and_ `final`
+3. Do not provide "setter" methods
+4. Initialize all fields in the constructor
+5. Defensivelly copy field values when necessary
+
+### Defensive Copying
+
+Good news! Pointers are back! Fortunately, you already understand how they work :-)
+
+Consider the abbreviated class below:
+
+```java
+public final class ReportCard {
+    private final String studentName;
+    private final int studentId;
+    private final int[] examScores; 
+
+
+    public ReportCard(String studentName, int studentId, int[] scores) {
+        this.studentName = studentName;
+        this.studentId = studentId;
+        this.examScores = scores;
+    }
+
+    public int[] getExamScores() {
+        return this.examScores;
+    }
+}
+```
+
+This class is _almost_ immutable. Remember, though, that array-type variables likee `int[] examScores` store _pointers_ and not the value themselves. So, the class that constructs the `GradeBook` will still be able to modify the array because it maintains a _pointer_ to that array.
+
+But wait, isn't the field `examScores` final? Shouldn't that stop it from being modified? This is a classic "gotcha:" once again, it is the _pointer_ which matters. The _pointer_ itself cannot change, but the data pointed to is absolutely able to change. So, if we want the class to be truly immutable (i.e. no changing the array values), we need to make a copy of the values both when we construct the class _and_ when we return the scores, since both will result in an external class receiving a pointer to some mutable data. This way, the client can change whatever it wants without affecting the internal state of the `ReportCard` class:
+
+```java
+public final class ReportCard {
+    private final String studentName;
+    private final int studentId;
+    private final int[] examScores; 
+
+
+    public ReportCard(String studentName, int studentId, int[] scores) {
+        this.studentName = studentName;
+        this.studentId = studentId;
+        this.examScores = this.examScores = (scores == null) ? new int[0] : scores.clone();
+    }
+
+    public int[] getExamScores() {
+        return this.examScores.clone();
+    }
+}
+```
