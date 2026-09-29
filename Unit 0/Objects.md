@@ -14,7 +14,7 @@ Bundling functions into libraries is an incredibly powerful tool that has been a
 
 ### Limitations of Libraries
 
-Even with the usefulness of libraries like the `Math` class in Java, purely functional programming often runs into some significant limitations. Consider a program that simulates an aquarium that contains a bunch of fish. Suppose that someone has also created a Fish library for drawing individual Fish so you don't have to invent that code on your own. _But_, which fish you draw in your aquarium is up to you--this library is quite general and doesn't just lock every aquarium into having the same fish.
+Even with the usefulness of libraries like the `Math` class in Java, purely procedural programming often runs into some significant limitations. Consider a program that simulates an aquarium that contains a bunch of fish. Suppose that someone has also created a Fish library for drawing individual Fish so you don't have to invent that code on your own. _But_, which fish you draw in your aquarium is up to you--this library is quite general and doesn't just lock every aquarium into having the same fish.
 
 That means that our aquarium needs to keep track of all the information about _its_ fish, so that it can request drawings from the fish class. Here's what that would look like:
 

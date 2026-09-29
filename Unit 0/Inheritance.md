@@ -494,6 +494,23 @@ public String toString() {
 
 You've seen this jumbled mess of ClassName@pile-of-numbers if you've ever tried to put an object (other than a string) or an array (which is sort of a "special" quasi-object) directly into `System.out.println()`, a function which calls `toString()` on any parameter you put into it, hence the weird output (the `hashCode()` is just the object's memory address by default).
 
+## Access Modifiers
+
+Hopefully you've been noticing some new keywords like `public`, `private`, and `protected` that we haven't defined. These are referred to as _access modifiers_. Access Modifiers control what classes can call, access, inherit, or construct a method, field, or class in another class. Take for example `public void takeDamage()` in the `GameCharacter` class. The `public` modifier indicates that _any_ class can invoke the `takeDamage()` function.
+
+In general, there are four categories of classes that we can use to control access: everyone, classes in the same package, subclasses in a different package, and the same class itself. Here's a nice table showing how each of the modifiers works:
+
+| Modifier | Same Class | Same Package | Subclass (different package) | Everyone |
+|---|---|---|---|---|
+| `public` | Yes | Yes | Yes | Yes |
+| `protected` | Yes | Yes | Yes | No |
+| (no modifier / package-private) | Yes | Yes | No | No |
+| `private` | Yes | No | No | No |
+
+We haven't really discussed packages, but you can think of them as extra code that you import from somewhere else. You've used classes from the `java.util` packages like `Scanner`, but you could also package your own code to be imported by another program written by someone else. When you compile your own classes, unless you specify otherwise, the compiler considers all of your classes part of the "default" package.
+
+The most common modifiers, however are `public` and `private`. If we're following good encapsulation, _most_ of our fields should be `private`--fields should be grouped into classes with the methods that operate on them. Allowing outside classes to manipulate fields changes the internal "state" of the class, which can make it unstable. If fields _do_ need to be updated from, it's better practice to provide "getter" and "setter" methods that can make the change safely. In our example above, we marked some fields `protected`, enabling subclasses which override some functionality to have access to those fields while preserving data encapsulation. Access control is a design choice, but best practice (and the most stable) is to set fields to have the least access possible.
+
 ## Dynamic vs Static Binding
 
 In closing, we should note a small warning about function binding. _Binding_ means moving from a method _name_ to the actual code run. With overriding methods, we saw an example of _dynamic_ or _late_ binding. Overriding methods share a _name_ but have different _code_. In that case, Java waits until runtime (the "latests" possible moment) to resolve the name and "bind" it to the actual code that gets run.
