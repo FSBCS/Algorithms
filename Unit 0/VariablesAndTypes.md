@@ -35,7 +35,7 @@ Java catches this mistake at compile time, before the program ever runs.
 
 ### Identifiers
 
-A variable's name (its _identifier_) can contain letters, digits, `_`, and `$`, but it can't start with a digit and can't be a _reserved word_ (`int`, `class`, `if`, `for`, `public`, `static`, `new`, `return`, and about fifty others). Choose names that say what the variable means: `guessesRemaining` beats `g` every time. (Loop counters like `i` and `j` are a traditional exception.)
+A variable's name (its _identifier_) can contain letters, digits, `_`, and `$`, but it can't start with a digit and can't be a _reserved word_ (`int`, `class`, `if`, `for`, `public`, `static`, `new`, `return`, [and about fifty others](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/_keywords.html)). Choose names that say what the variable means: `guessesRemaining` beats `g` every time. (Loop counters like `i` and `j` are a traditional exception.)
 
 ### Constants with `final`
 
@@ -47,18 +47,6 @@ MAX_GUESSES = 25;   // COMPILE ERROR: cannot assign a value to final variable
 ```
 
 Use `final` for values that shouldn't change: it documents your intent and lets the compiler enforce it. You'll see `final` again in [Special Classes](SpecialClasses.md), where it's one of the tools for building immutable classes.
-
-### Local Type Inference with `var`
-
-Since Java 10, you can write `var` instead of a type when declaring a local variable, as long as you initialize it on the same line:
-
-```java
-var count = 0;           // compiler infers int
-var name = "Ada";        // compiler infers String
-var input = new Scanner(System.in);  // compiler infers Scanner
-```
-
-This does **not** mean the variable can hold values of any type (that would be _dynamic typing_, described below). The variable still has a fixed type; the compiler just works it out from the right-hand side. `count = "hello";` on the next line would still be a compile error. In this course, write the types out explicitly for now: part of learning Java is getting used to thinking about what type every value has.
 
 ## Data Types
 
@@ -152,7 +140,7 @@ System.out.println(0.1 + 0.2 == 0.3);  // false
 
 ### Reference Types
 
-Everything that isn't one of the eight primitives is a **reference type**: `String`, arrays, `Scanner`, and every class you or anyone else writes. A reference variable doesn't hold the object itself; it holds a _reference_ (a pointer) to where the object lives in memory. You saw this in the memory diagram in [Objects](Objects.md).
+Everything that isn't one of the eight primitives is a **reference type**: `String`, arrays, `Scanner`, and every class you or anyone else writes. A reference variable doesn't hold the object itself; it holds a _reference_ (a pointer) to where the object lives in memory. You'll see this again in the memory diagram in [Objects](Objects.md).
 
 ```
     int n = 42;                        String s = "hi";

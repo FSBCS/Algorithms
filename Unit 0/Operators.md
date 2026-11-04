@@ -71,7 +71,7 @@ int b = a++;   // b is 5, a is now 6
 int c = ++a;   // a is now 7, c is 7
 ```
 
-You can see the prefix form in `NumberGuesser.java`:
+You'll sometimes see the prefix form used inside a larger expression:
 
 ```java
 System.out.println("Too low! " + --guessesRemaining + " guesses left.\n");

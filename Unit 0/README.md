@@ -135,4 +135,4 @@ java NumberGuesser
 | --- | --- |
 | [`HelloWorld.java`](HelloWorld.java) | The smallest complete Java program |
 | [`HelloUser.java`](HelloUser.java) | Reading input with a `Scanner` |
-| [`NumberGuesser.java`](NumberGuesser.java) | Variables, `Math.random()`, casting, a `do`-`while` loop, and `if`/`else if`/`else` together in one program (see the [annotated walkthrough](ProceduralProgramming.md#putting-it-together-numberguesserjava)) |
+| [`NumberGuesser.java`](NumberGuesser.java) | A complete game built from the pieces of Part I: constants, helper methods, a `do`-`while` loop, `if`/`else if`/`else`, and input validation with `Scanner` (see the [annotated walkthrough](ProceduralProgramming.md#putting-it-together-numberguesserjava)) |

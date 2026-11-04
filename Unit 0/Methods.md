@@ -145,7 +145,7 @@ public static String sign(int n) {
 }
 ```
 
-A `return` statement ends the method _immediately_, even in the middle of a loop, and hands the value back to the caller. A `void` method doesn't return a value, but it can use a bare `return;` to exit early. In `NumberGuesser.java`, a `return;` inside `main` ends the whole program as soon as the user guesses correctly.
+A `return` statement ends the method _immediately_, even in the middle of a loop, and hands the value back to the caller. A `void` method doesn't return a value, but it can use a bare `return;` to exit early. For example, a bare `return;` inside `main` ends the whole program.
 
 A method can return only one value. To return several, you can return an array, or (better) an object that bundles them together. That's one more motivation for classes.
 
@@ -247,28 +247,13 @@ Its signature is `main(String[])`.
 | `Math.random()` | a random `double` from `0.0` (inclusive) up to `1.0` (exclusive) |
 | `Math.PI`, `Math.E` | the constants π and _e_ |
 
-A common idiom for a random integer from 1 to `n`, straight from `NumberGuesser.java`:
+A common idiom for a random integer from 1 to `n`:
 
 ```java
 int secretNumber = (int) (Math.random() * 1000000) + 1;   // 1 to 1,000,000
 ```
 
-`Math.random()` gives a `double` in `[0, 1)`; multiplying by 1,000,000 gives `[0, 1000000)`; casting to `int` truncates to a whole number from 0 to 999,999; adding 1 shifts the range to 1 through 1,000,000.
-
-### Recursion
-
-A method can call itself. This is called _recursion_:
-
-```java
-public static long factorial(int n) {
-    if (n <= 1) {
-        return 1;                     // base case
-    }
-    return n * factorial(n - 1);      // recursive case
-}
-```
-
-Every recursive method needs a _base case_ that doesn't recurse, or it will call itself until the program runs out of memory for method calls and crashes with a `StackOverflowError`. We'll lean on recursion heavily when we get to algorithms.
+`Math.random()` gives a `double` in `[0, 1)`; multiplying by 1,000,000 gives `[0, 1000000)`; casting to `int` truncates to a whole number from 0 to 999,999; adding 1 shifts the range to 1 through 1,000,000. `NumberGuesser.java` wraps this idiom in a general-purpose method, `randomInt(low, high)`, so the arithmetic is written once and the range becomes a parameter.
 
 ### Writing Good Methods
 

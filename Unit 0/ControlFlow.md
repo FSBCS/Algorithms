@@ -114,10 +114,10 @@ A `do`-`while` loop checks its condition _after_ each repetition, so the body al
 
 ```java
 do {
-    System.out.print("Please enter a guess: ");
-    int guess = input.nextInt();
+    int guess = readGuess(input);
+    guessesRemaining--;
     // ... check the guess ...
-} while (guessesRemaining > 0);
+} while (!won && guessesRemaining > 0);
 ```
 
 Note the semicolon after the `while (...)` at the end. It's easy to forget.

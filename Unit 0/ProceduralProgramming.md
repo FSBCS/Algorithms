@@ -22,49 +22,89 @@ The rest of this page pulls everything together: an annotated example program, a
 
 ## Putting It Together: `NumberGuesser.java`
 
-Here's `NumberGuesser.java` again, annotated with the concepts from these notes:
+Here's a complete program that uses nearly everything from these notes. The computer picks a secret number, and the player has 20 guesses to find it, with a "too high" or "too low" hint after each one. Read `main` first: it should read almost like an outline of the game. The details are handed off to three small helper methods below it.
 
 ```java
-import java.util.Scanner;                          // Scanner lives in java.util
+import java.util.Scanner;                              // Scanner lives in java.util
 
-public class NumberGuesser {                       // file must be NumberGuesser.java
-    public static void main(String[] args) {       // entry point: signature main(String[])
+/**
+ * A guessing game. The computer picks a secret number, and the player
+ * has a limited number of guesses to find it, with a hint after each one.
+ */
+public class NumberGuesser {                           // file must be NumberGuesser.java
+    public static void main(String[] args) {           // entry point: signature main(String[])
+        final int MAX_NUMBER = 1_000_000;              // constants: each value written once
+        final int MAX_GUESSES = 20;
 
-        // Random int from 1 to 1,000,000: double → cast (truncate) → shift by 1
-        int secretNumber = (int) (Math.random() * 1000000) + 1;
-        int guessesRemaining = 20;                 // declared and initialized
-        Scanner input = new Scanner(System.in);    // a reference type: an object
+        Scanner input = new Scanner(System.in);        // a reference type: an object
+        int secretNumber = randomInt(1, MAX_NUMBER);   // a method call is an expression
+        int guessesRemaining = MAX_GUESSES;
+        boolean won = false;                           // tracks whether the game is over
 
-        System.out.println("\nI'm thinking of a number between 1 and 1 Million.");
-        System.out.println("You have 20 guesses to find my number \n");
+        printInstructions(MAX_NUMBER, MAX_GUESSES);    // arguments matched to parameters in order
 
-        do {                                       // body runs at least once
-            System.out.print("Please enter a guess: ");
-            int guess = input.nextInt();           // scope: only inside this loop body
+        // Take guesses until the number is found or the guesses run out.
+        do {                                           // body runs at least once
+            int guess = readGuess(input);              // scope: only inside this loop body
+            guessesRemaining--;                        // side effect on its own line
 
-            if (guess == secretNumber) {           // == is fine: comparing primitives
-                System.out.println("Correct! You win!!");
-                return;                            // exits main, ending the program
+            if (guess == secretNumber) {               // == is fine: comparing primitives
+                won = true;
             } else if (guess < secretNumber) {
-                // prefix decrement: subtract 1, then use the new value
-                System.out.println("Too low! " + --guessesRemaining + " guesses left.\n");
+                System.out.println("Too low! " + guessesRemaining + " guesses left.\n");
             } else {
-                System.out.println("Too high! " + --guessesRemaining + " guesses left.\n");
+                System.out.println("Too high! " + guessesRemaining + " guesses left.\n");
             }
+        } while (!won && guessesRemaining > 0);        // checked after each guess
 
-        } while (guessesRemaining > 0);            // condition checked after each guess
+        if (won) {
+            System.out.println("Correct! You win!!");
+        } else {
+            System.out.println("Out of guesses :-(");
+            System.out.println("Correct answer: " + secretNumber);  // int concatenated into a String
+        }
 
-        System.out.println("Out of guesses :-(");
-        System.out.println("Correct answer: " + secretNumber);  // int concatenated into String
+        input.close();                                 // always reached: no early return
+    }
+
+    /**
+     * Returns a random integer from low to high, inclusive.
+     */
+    public static int randomInt(int low, int high) {   // signature: randomInt(int, int)
+        // double in [0, 1) → scale to the size of the range → truncate → shift up by low
+        return (int) (Math.random() * (high - low + 1)) + low;
+    }
+
+    /**
+     * Prints the rules of the game.
+     */
+    public static void printInstructions(int maxNumber, int maxGuesses) {  // void: no return value
+        System.out.printf("%nI'm thinking of a number between 1 and %,d.%n", maxNumber);
+        System.out.printf("You have %d guesses to find my number.%n%n", maxGuesses);
+    }
+
+    /**
+     * Asks for a guess, re-prompting until the player types a whole number.
+     */
+    public static int readGuess(Scanner input) {       // an object passed as an argument
+        System.out.print("Please enter a guess: ");
+        while (!input.hasNextInt()) {                  // while: may run zero times
+            input.next();                              // throw away the input that wasn't a number
+            System.out.print("That's not a whole number. Try again: ");
+        }
+        return input.nextInt();
     }
 }
 ```
 
-A few things worth noticing:
+A few design choices worth noticing:
 
-- `guess` is declared _inside_ the `do` block, so it doesn't exist in the `while (...)` condition or after the loop. That's fine here because the condition only needs `guessesRemaining`, which was declared outside the loop.
-- The `20` appears twice (in the initialization and in the instructions). If you changed one, you'd have to remember to change the other. A `final int MAX_GUESSES = 20;` constant used in both places would be better.
-- The program never calls `input.close()`, and a `return` in the middle of `main` would skip it anyway. It's harmless in a program this small, but it's a good habit to close a `Scanner` when you're done with it.
+- **`main` tells the story; helpers do the work.** Each helper method has one job, a name that says what that job is, and a Javadoc comment. Because `randomInt` takes its range as parameters instead of hard-coding 1,000,000, it would work unchanged in any program that needs a random number.
+- **Every number appears exactly once.** `MAX_NUMBER` and `MAX_GUESSES` are declared `final` at the top of `main` and passed to `printInstructions` as arguments. To make the game easier, you change one line, and the instructions stay correct automatically.
+- **One way out of the loop.** Instead of calling `return` from the middle of the loop when the player wins, the program records the result in the `boolean` variable `won`. The loop condition checks it, and the code after the loop decides which message to print. Because nothing exits early, the program always reaches `input.close()`.
+- **Two kinds of loops, each for a reason.** The game loop is a `do`-`while` because the player always gets at least one guess. The loop in `readGuess` is a plain `while` because it should run zero times when the input is already a valid number. `hasNextInt()` checks the input _before_ `nextInt()` reads it, so typing `banana` gets a polite retry instead of an `InputMismatchException`.
+- **Scope keeps things tidy.** `guess` is declared inside the loop body because it's needed only there. `guessesRemaining` and `won` are declared before the loop because the loop condition and the code after the loop both need them.
+- **The decrement gets its own line.** Writing `guessesRemaining--;` by itself, rather than inside the `println` call, makes it obvious that it happens exactly once per guess, whichever branch of the `if` runs.
 
 ## When Things Go Wrong
 
