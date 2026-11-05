@@ -1,4 +1,5 @@
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.Iterator;
 
 public class ArrayQueue<T> implements Queue<T> {
@@ -54,6 +55,17 @@ public class ArrayQueue<T> implements Queue<T> {
         return temp;
     }
 
+    @Override 
+    public T peek() {
+        if (isEmpty()) throw new NoSuchElementException("Queue Underflow: cannot peek in an empty queue");
+
+        return data[first];
+    }
+
+    public int size() {
+        return n;
+    }
+
     private class ArrayQueueIterator implements Iterator<T> {
         private int i;
 
@@ -74,5 +86,22 @@ public class ArrayQueue<T> implements Queue<T> {
 
     public Iterator<T> iterator() {
         return new ArrayQueueIterator();
+    }
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        Queue<String> q = new LinkedListQueue<>();
+
+        while (input.hasNext()) {
+            String s = input.next();
+            if (s.equals("-")) System.out.println(q.dequeue());
+            else if (s.equals("^")) break;
+            else q.enqueue(s);
+        }
+
+        System.out.println(q.size() + " items remain on the queue");
+        System.out.println(q);
+
+        input.close();
     }
 }
