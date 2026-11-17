@@ -3,13 +3,13 @@ import java.util.Iterator;
 import java.util.Scanner;
 
 public class LinkedListQueue<T> implements Queue<T> {
-    private Node<T> first = null;
-    private Node<T> last = null;
+    private Node first = null;
+    private Node last = null;
     private int size = 0;
 
-    private class Node<S> {
-        private S val;
-        private Node<S> next = null;
+    private class Node {
+        private T val;
+        private Node next = null;
     }
 
     public boolean isEmpty() {
@@ -17,8 +17,8 @@ public class LinkedListQueue<T> implements Queue<T> {
     }
 
     public void enqueue(T item) {
-        Node<T> oldLast = last;
-        last = new Node<>();
+        Node oldLast = last;
+        last = new Node();
         last.val = item;
 
         if (isEmpty())  first = last;
@@ -32,7 +32,7 @@ public class LinkedListQueue<T> implements Queue<T> {
             throw new NoSuchElementException("Queue Underflow: cannot dequeue from an empty queue.");
         }
 
-        Node<T> oldFirst = first;
+        Node oldFirst = first;
         first = first.next;
 
         if (isEmpty()) last = null;
@@ -54,7 +54,7 @@ public class LinkedListQueue<T> implements Queue<T> {
     }
 
     private class LinkedQueueIterator implements Iterator<T> {
-        private Node<T> current;
+        private Node current;
 
         private LinkedQueueIterator() {
             current = first;

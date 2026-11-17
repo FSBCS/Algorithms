@@ -3,18 +3,18 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class LinkedListStack<T> implements Stack<T> {
-    private Node<T> first = null;
+    private Node first = null;
     private int size = 0;
 
-    private class Node<Item> {
-        Item item;
-        Node<Item> next;
+    private class Node {
+        T item;
+        Node next;
     }
 
     private class LinkedStackIterator implements Iterator<T> {
-        private Node<T> current;
+        private Node current;
 
-        private LinkedStackIterator(Node<T> n) {
+        private LinkedStackIterator(Node n) {
             this.current = n;
         }
 
@@ -34,8 +34,8 @@ public class LinkedListStack<T> implements Stack<T> {
     }
 
     public void push(T e) {
-        Node<T> oldFirst = first;
-        first = new Node<>();
+        Node oldFirst = first;
+        first = new Node();
         first.item = e;
         first.next = oldFirst;
 
@@ -56,7 +56,7 @@ public class LinkedListStack<T> implements Stack<T> {
 
         size--;
 
-        Node<T> oldFirst = first;
+        Node oldFirst = first;
         first = first.next;
         return oldFirst.item;
     }
